@@ -238,7 +238,7 @@ module FREQ_CALIBRATION(
         end
     end
 
-    DAC9531_DATA_ACCESS inst1(
+    SPI_DAC8531 DAC(
         .CLK          (CLOCK_10M),
         .RESET_N      (RESET_N),
         .TR           (TR),

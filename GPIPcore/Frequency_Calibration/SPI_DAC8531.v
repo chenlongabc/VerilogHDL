@@ -1,4 +1,4 @@
-module DAC8531_DATA_ACCESS(
+module SPI_DAC8531(
     input   wire                CLK,
     input   wire                RESET_N,
     input   wire                TR,
