@@ -156,13 +156,13 @@ module SPI_SLAVE(
         if (!RESET_N) begin
             FIFO_WRREQ <= 0;
             SACK <= 0;
-            restart <= 0;
+            restart <= 0;// No Reset to high !!!  
             state2 <= 0;
         end else begin
             if (!enough) begin
                 FIFO_WRREQ <= 0;
                 SACK <= 0;
-                restart <= 1; // No Reset to high !!!  
+                restart <= 1; 
                 state2 <= 0;
             end else begin
                 case (state2)
