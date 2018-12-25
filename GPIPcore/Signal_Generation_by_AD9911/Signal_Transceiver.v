@@ -17,6 +17,7 @@ module Signal_Transceiver(
     output   reg    [15:0]   CODE_LEN,
     output   reg    [15:0]   CODE_DURATION,
     output   reg    [15:0]   PULSE_LEN,
+    output   reg    [ 7:0]   PROBE_MODE,
 
     output   reg             INITI,
     input    wire            INITIED,
@@ -125,13 +126,13 @@ module Signal_Transceiver(
         if (!RESET_N) begin
             state <= 0;
             GEN <= 0;
-            INITI <= 1;
+            INITI <= 0;
             SIGNAL_TRANSC_BUSY <= 0;
         end else begin
             case (state)
                 0:  begin
                         GEN <= 0;
-                        //INITI <= 1;
+                        INITI <= 1;
                         SIGNAL_TRANSC_BUSY <= 0;
                         state <= 1;
                     end
@@ -148,12 +149,13 @@ module Signal_Transceiver(
                             CODE_LEN      <= code_length;
                             CODE_DURATION <= code_duration;
                             PULSE_LEN     <= pulse_lenght;
+                            PROBE_MODE    <= probe_mode;
                             state <= 2;
                         end
                     end
                 2:  begin//err
                         if (INITIED) begin
-                            INITI <= 0;
+                            //INITI <= 0;
                             state <= 3;
                         end
                     end
@@ -169,8 +171,9 @@ module Signal_Transceiver(
                     end
                 4:  begin // updata freqw of ad9911(RF and LO)
                         if (UPDATED) begin
+                            state <= UPDATE ? 4 : 5;
+                        end else begin
                             UPDATE <= 0;
-                            state <= 5;
                         end
                     end
                 5:  begin

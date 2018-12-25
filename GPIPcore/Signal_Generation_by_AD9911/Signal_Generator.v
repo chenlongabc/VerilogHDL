@@ -220,10 +220,10 @@ module Signal_Generator(
         .CLK         (CLOCK_10M),
         .RESET_N     (RESET_N),
 
-        .TR          (SPI_LO_TR),
-        .REG_ADDR    (SPI_LO_ADDR),
-        .DATA_IN     (SPI_LO_DATA),
-        .BUSY        (SPI_LO_BUSY),
+        .TR          (LO_TR),
+        .REG_ADDR    (LO_ADDR),
+        .DATA_IN     (LO_DATA),
+        .BUSY        (LO_BUSY),
 
         .AD_CS       (LO_CS),
         .AD_SCLK     (LO_SCLK),
@@ -236,10 +236,10 @@ module Signal_Generator(
         .CLK         (CLOCK_10M),
         .RESET_N     (RESET_N),
 
-        .TR          (SPI_RF_TR),
-        .REG_ADDR    (SPI_RF_ADDR),
-        .DATA_IN     (SPI_RF_DATA),
-        .BUSY        (SPI_RF_BUSY),
+        .TR          (RF_TR),
+        .REG_ADDR    (RF_ADDR),
+        .DATA_IN     (RF_DATA),
+        .BUSY        (RF_BUSY),
 
         .AD_CS       (RF_CS),
         .AD_SCLK     (RF_SCLK),

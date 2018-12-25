@@ -110,6 +110,7 @@ module Frequency_Updater #(parameter starting_freqw_LO = 370440929, starting_fre
             end else begin
                 case (state1)
                     255:begin
+                        INITIED <= 0;
                         LO_MRSET <= 0;
                         RF_MRSET <= 0;
                         delay <= delay+1;
@@ -124,7 +125,7 @@ module Frequency_Updater #(parameter starting_freqw_LO = 370440929, starting_fre
                         end
                     1  :begin
                             if (i>=11) begin
-                                state1 <= 5;
+                                state1 <= 6;
                             end else begin
                                 state1 <= 2;
                             end
@@ -137,17 +138,24 @@ module Frequency_Updater #(parameter starting_freqw_LO = 370440929, starting_fre
                             state1 <= 3;
                         end
                     3  :begin
-                            if (!LO_BUSY && !RF_BUSY) begin
-                                I_LO_TR <= 1;
-                                I_RF_TR <= 1;
-                                state1 <= 4;
-                            end
+                            I_LO_TR <= 1;
+                            I_RF_TR <= 1;
+                            state1 <= 4;
                         end
                     4  :begin
-                            i <= i+1;
-                            state1 <= 0;
+                            if (LO_BUSY && RF_BUSY) begin
+                                I_LO_TR <= 0;
+                                I_RF_TR <= 0;
+                                state1 <= 5;
+                            end
                         end
                     5  :begin
+                            if (!LO_BUSY && !RF_BUSY) begin
+                                i <= i+1;
+                                state1 <= 0;
+                            end
+                        end
+                    6  :begin
                             INITIED <= 1;
                         end
                     default: state1 <= 0;
@@ -188,15 +196,22 @@ module Frequency_Updater #(parameter starting_freqw_LO = 370440929, starting_fre
                             end
                         end
                     2  :begin
-                            if (!LO_BUSY && !RF_BUSY) begin
-                                U_LO_TR <= 1;
-                                U_RF_TR <= 1;
-                                state2 <= 3;
-                            end
+                            U_LO_TR <= 1;
+                            U_RF_TR <= 1;
+                            state2 <= 3;
                         end
                     3  :begin
-                            UPDATED <= 1;
-                            state2 <= 0;
+                            if (LO_BUSY && RF_BUSY) begin
+                                U_LO_TR <= 0;
+                                U_RF_TR <= 0;
+                                state2 <= 4;
+                            end
+                        end
+                    4  :begin
+                            if (!LO_BUSY && !RF_BUSY) begin
+                                UPDATED <= 1;
+                                state2 <= 0;
+                            end
                         end
                     default: state2 <= 0;
                 endcase
