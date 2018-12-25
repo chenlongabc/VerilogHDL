@@ -45,7 +45,7 @@
 *
 */
 
-module SPI_MASTER(
+module SPI_MASTER #(parameter data_wide = 64-1;)(
     input    wire            CLK,
     input    wire            RESET_N,
     /******* data interface ********/

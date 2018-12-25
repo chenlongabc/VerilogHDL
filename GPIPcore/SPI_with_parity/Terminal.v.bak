@@ -7,18 +7,25 @@ AD
 module Terminal(
     input    wire            CLK,
     input    wire            RESET_N,
+
+
     input    wire            TR_IN,
     input    wire   [ 7:0]   ADDR_IN,
     input    wire   [31:0]   DATA_IN,
     output   reg             BUSY,
+
+    
     output   reg             TR_OUT,
     output   reg    [ 7:0]   ADDR_OUT,
     output   reg    [31:0]   DATA_OUT,
+
     output   reg             RELEASE,
+
     input    wire            SPI_RD_SS  ,//   : AD <- DE1 
     input    wire            SPI_RD_SCK ,//   : AD <- DE1
     input    wire            SPI_RD_SD  ,//   : AD <- DE1
     output   wire            SPI_RD_SACK,//   : AD -> DE1    
+
     output   wire            SPI_WR_SS  ,//   : AD -> DE1
     output   wire            SPI_WR_SCK ,//   : AD -> DE1
     output   wire            SPI_WR_SD  ,//   : AD -> DE1
@@ -72,7 +79,7 @@ module Terminal(
     always @(posedge CLK or negedge RESET_N) begin
         if (!RESET_N) begin
             SPI_RD <= 0;
-            TR_OUT <= 0;
+            TR_OUT <= 0
             state2 <= 0;
             RELEASE <= 0;
             intruction <= 0;

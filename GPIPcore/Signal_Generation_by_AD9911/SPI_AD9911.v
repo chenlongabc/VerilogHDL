@@ -17,7 +17,7 @@ module SPI_AD9911(
     output reg             AD_SDIO0,
   //output reg             AD_MSATEREST,
     output reg             AD_UPADTE, 
-    output wire            OVER
+    output wire            BUSY
     );
 
 
@@ -41,7 +41,7 @@ module SPI_AD9911(
     reg  [ 4:0]   curBit_data = 0;
 	 
 
-    assign  OVER = AD_CS;
+    assign  BUSY = !AD_CS;
 
     initial begin
         AD_CS <= 1;
@@ -140,7 +140,7 @@ module SPI_AD9911(
                         end
                         AD_SCLK <= 1;
                     end  
-                /************************ UPADTE/OVER ************************/
+                /************************** UPADTE ************************/
                 S7:	begin
                         AD_SCLK <= 0;
                         AD_UPADTE <= 1; 
