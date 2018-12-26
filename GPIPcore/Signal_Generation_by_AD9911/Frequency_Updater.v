@@ -20,8 +20,7 @@ module Frequency_Updater #(parameter starting_freqw_LO = 370440929, starting_fre
     output    wire   [31:0]     LO_DATA,
     output    reg               LO_MRSET,
     input     wire              LO_BUSY,
-    
-    
+
     output    wire              RF_TR,
     output    wire   [ 7:0]     RF_ADDR,
     output    wire   [31:0]     RF_DATA,
@@ -113,10 +112,12 @@ module Frequency_Updater #(parameter starting_freqw_LO = 370440929, starting_fre
                         INITIED <= 0;
                         LO_MRSET <= 0;
                         RF_MRSET <= 0;
-                        delay <= delay+1;
-                        if (delay>2048) begin // delay 204.8us for AD9911 being stable
-                            state1 <= 0;
-                        end
+                        state1 <= 0;
+                        // if (delay>2048) begin // delay 204.8us for AD9911 being stable
+                        //     state1 <= 0;
+                        // end else begin
+                        //     delay <= delay+1;
+                        // end
                     end
                     0  :begin
                             I_LO_TR <= 0;
@@ -156,15 +157,17 @@ module Frequency_Updater #(parameter starting_freqw_LO = 370440929, starting_fre
                             end
                         end
                     6  :begin
-                            INITIED <= 1;
+                            if (delay>20000) begin // delay 2ms for AD9911 being stable
+                                INITIED <= 1;
+                            end else begin
+                                delay <= delay+1;
+                            end
                         end
                     default: state1 <= 0;
                 endcase
             end
         end
     end
-
-
 
     always @(posedge CLOCK_10M or negedge RESET_N) begin
         if (!RESET_N) begin
