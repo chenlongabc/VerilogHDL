@@ -59,7 +59,7 @@ module Signal_Generator(
     input     wire   [15:0]     CODE_DURATION,
     input     wire   [15:0]     PULSE_LEN,
 
-    input     wire              INITI, 
+    input     wire              INIT_DDS, 
     output    wire              INITIED, 
     input     wire   [31:0]     FREQW,
     input     wire              UPDATE, 
@@ -195,7 +195,7 @@ module Signal_Generator(
         // .TR            (),
         // .ADDR          (),
         // .DATA          (),
-        .INITI         (INITI),
+        .INIT_DDS      (INIT_DDS),
         .INITIED       (INITIED),
 
         .FREQW         (FREQW),

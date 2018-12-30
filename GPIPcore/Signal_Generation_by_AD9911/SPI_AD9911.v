@@ -16,7 +16,7 @@ module SPI_AD9911(
     output reg             AD_SCLK,
     output reg             AD_SDIO0,
   //output reg             AD_MSATEREST,
-    output reg             AD_UPADTE, 
+    output reg             AD_UPADTE,
     output wire            BUSY
     );
 
@@ -33,13 +33,13 @@ module SPI_AD9911(
     localparam S8 = 9'b100000000;
 
     reg  [ 9:0]   state = 0;
-    
+
     reg  [ 7:0]   addr = 0;
     reg  [31:0]   data = 0;
     reg  [ 4:0]   regBitWide[24:0];
     reg  [ 4:0]   curBit_addr = 0;
     reg  [ 4:0]   curBit_data = 0;
-	 
+
 
     assign  BUSY = !AD_CS;
 
@@ -48,31 +48,31 @@ module SPI_AD9911(
         AD_SCLK <= 0;
         AD_SDIO0 <= 0;
         AD_UPADTE <= 0;
-        regBitWide[0 ] <= 7; // 8   CSR  
-        regBitWide[1 ] <= 23;// 24  FR1	
-        regBitWide[2 ] <= 15;// 16  FR2	
-        regBitWide[3 ] <= 23;// 24  CFR	
-        regBitWide[4 ] <= 31;// 32  CTW0
-        regBitWide[5 ] <= 15;// 16  CPOW0
-        regBitWide[6 ] <= 23;// 24  ACR	
-        regBitWide[7 ] <= 15;// 16  LSR	
-        regBitWide[8 ] <= 31;// 32  RDW	
-        regBitWide[9 ] <= 31;// 32  FDW
-        regBitWide[10] <= 31;// 32  CTW1
-        regBitWide[11] <= 31;// 32  CTW2
-        regBitWide[12] <= 31;// 32  CTW3
-        regBitWide[13] <= 31;// 32  CTW4
-        regBitWide[14] <= 31;// 32  CTW5
-        regBitWide[15] <= 31;// 32  CTW6
-        regBitWide[16] <= 31;// 32  CTW7
-        regBitWide[17] <= 31;// 32  CTW8
-        regBitWide[18] <= 31;// 32  CTW9
-        regBitWide[19] <= 31;// 32  CTW10
-        regBitWide[20] <= 31;// 32  CTW11
-        regBitWide[21] <= 31;// 32  CTW12
-        regBitWide[22] <= 31;// 32  CTW13
-        regBitWide[23] <= 31;// 32  CTW14
-        regBitWide[24] <= 31;// 32  CTW15 
+        regBitWide[0 ] <= 7; // 8    CSR
+        regBitWide[1 ] <= 23;// 24   FR1
+        regBitWide[2 ] <= 15;// 16   FR2
+        regBitWide[3 ] <= 23;// 24   CFR
+        regBitWide[4 ] <= 31;// 32   CTW0
+        regBitWide[5 ] <= 15;// 16   CPOW0
+        regBitWide[6 ] <= 23;// 24   ACR
+        regBitWide[7 ] <= 15;// 16   LSR
+        regBitWide[8 ] <= 31;// 32   RDW
+        regBitWide[9 ] <= 31;// 32   FDW
+        regBitWide[10] <= 31;// 32   CTW1
+        regBitWide[11] <= 31;// 32   CTW2
+        regBitWide[12] <= 31;// 32   CTW3
+        regBitWide[13] <= 31;// 32   CTW4
+        regBitWide[14] <= 31;// 32   CTW5
+        regBitWide[15] <= 31;// 32   CTW6
+        regBitWide[16] <= 31;// 32   CTW7
+        regBitWide[17] <= 31;// 32   CTW8
+        regBitWide[18] <= 31;// 32   CTW9
+        regBitWide[19] <= 31;// 32   CTW10
+        regBitWide[20] <= 31;// 32   CTW11
+        regBitWide[21] <= 31;// 32   CTW12
+        regBitWide[22] <= 31;// 32   CTW13
+        regBitWide[23] <= 31;// 32   CTW14
+        regBitWide[24] <= 31;// 32   CTW15
     end
 
 
@@ -91,9 +91,9 @@ module SPI_AD9911(
         end else begin
             case(state)
                 S0:	begin
-                        AD_CS <= 1;    
+                        AD_CS <= 1;
                         AD_SCLK <= 0;
-                        AD_UPADTE <= 0; 
+                        AD_UPADTE <= 0;
                         state <= S1;
                     end
                 S1:	begin
@@ -106,7 +106,7 @@ module SPI_AD9911(
                         end
                     end
                 /******************** WRITE INSTRUCTIONS ********************/
-                S2:	begin 
+                S2:	begin
                         AD_SCLK <= 0;
                         AD_SDIO0 <= addr[curBit_addr];
                         state <= S3;
@@ -139,14 +139,14 @@ module SPI_AD9911(
                             state <= S5;
                         end
                         AD_SCLK <= 1;
-                    end  
+                    end
                 /************************** UPADTE ************************/
                 S7:	begin
                         AD_SCLK <= 0;
-                        AD_UPADTE <= 1; 
+                        AD_UPADTE <= 1;
                         state <= S8;
                     end
-                S8: begin 
+                S8: begin
                         state <= S0;
                     end
                 default:state <= S0;

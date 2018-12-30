@@ -8,7 +8,7 @@ module Frequency_Updater #(parameter starting_freqw_LO = 370440929, starting_fre
     // input     wire   [ 7:0]     ADDR,
     // input     wire   [31:0]     DATA,
 
-    input     wire              INITI,
+    input     wire              INIT_DDS,
     output    reg               INITIED,
 
     input     wire   [31:0]     FREQW,
@@ -97,7 +97,7 @@ module Frequency_Updater #(parameter starting_freqw_LO = 370440929, starting_fre
             delay <= 0;
             state1 <= 255;
         end else begin
-            if (!INITI) begin
+            if (!INIT_DDS) begin
                 i <= 0;
                 I_LO_TR <= 0;
                 I_RF_TR <= 0;

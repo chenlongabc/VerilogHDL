@@ -8,13 +8,12 @@ module Terminal(
     input    wire            CLK,
     input    wire            RESET_N,
     input    wire            TR_IN,
-    input    wire   [ 7:0]   ADDR_IN,
+    input    wire   [15:0]   ADDR_IN,
     input    wire   [31:0]   DATA_IN,
-    output   reg             BUSY,
+    output   reg             TR_IN_BUSY,
     output   reg             TR_OUT,
-    output   reg    [ 7:0]   ADDR_OUT,
+    output   reg    [15:0]   ADDR_OUT,
     output   reg    [31:0]   DATA_OUT,
-    output   reg             RELEASE,
     input    wire            SPI_RD_SS  ,//   : AD <- DE1 
     input    wire            SPI_RD_SCK ,//   : AD <- DE1
     input    wire            SPI_RD_SD  ,//   : AD <- DE1
@@ -25,33 +24,38 @@ module Terminal(
     input    wire            SPI_WR_SACK //   : AD <- DE1
     );
 
-	reg            SPI_WR = 0;
-	reg            SPI_RD = 0;
+	reg   [ 7:0]   state1;
+    reg   [ 7:0]   state2;
+
+	reg            SPI_WR;
+	reg            SPI_RD;
 	wire           SPI_VALID_RD;
 	wire           SPI_BUSY_WR;
-	reg   [63:0]   SPI_DATA_WR = 0;
+	reg   [63:0]   SPI_DATA_WR;
 	wire  [63:0]   SPI_DATA_RD;
-    reg   [63:0]   intruction = 0;
-    
-	reg   [ 7:0]   state1 = 0;
-    reg   [ 7:0]   state2 = 0;
+    reg   [63:0]   intruction;
+    wire  [31:0]   instruction_data;
+    wire  [15:0]   instruction_addr;
+
+    assign instruction_data = intruction[63:32];
+    assign instruction_addr = intruction[15: 0];
 
 	always @(posedge CLK or negedge RESET_N) begin
         if (!RESET_N) begin
             SPI_WR <= 0;
-            BUSY <= 0;
+            TR_IN_BUSY <= 0;
             state1 <= 0;
         end else begin
             case(state1)
                 0:begin
                     SPI_WR <= 0;
-                    BUSY <= 0;
+                    TR_IN_BUSY <= 0;
                     state1 <= 1;
                 end
                 1:begin
                     if (TR_IN) begin // send it to DE1
-                        SPI_DATA_WR = {8'b0, DATA_IN, ADDR_IN, 16'b0};
-                        BUSY <= 1;
+                        SPI_DATA_WR = {DATA_IN, 16'b0, ADDR_IN};
+                        TR_IN_BUSY <= 1;
                         state1 <= 2;
                     end
                 end
@@ -74,7 +78,6 @@ module Terminal(
             SPI_RD <= 0;
             TR_OUT <= 0;
             state2 <= 0;
-            RELEASE <= 0;
             intruction <= 0;
         end else begin
             case(state2)
@@ -98,30 +101,11 @@ module Terminal(
                     state2 <= 4;
                 end
                 4:begin
-                    if (intruction[7:0] == 1) begin
-                        state2 <= 5;
-                    end else begin
-                        state2 <= 0;
-                    end
+                    ADDR_OUT <= instruction_addr;
+                    DATA_OUT <= instruction_data;
+                    state2 <= 5;
                 end
                 5:begin
-                    if (intruction[15:8] == 102) begin
-                        RELEASE <= 0;
-                        state2 <= 0;
-                    end else if (intruction[15:8] == 103) begin
-                        RELEASE <= 1;
-                        state2 <= 0;
-                    end else if (intruction[15:8] == 111) begin//save
-                        ADDR_OUT <= intruction[23:16];
-                        DATA_OUT <= intruction[55:24];
-                        state2 <= 6;
-                    end else if (intruction[15:8] == 222) begin//read
-                        state2 <= 0;
-                    end else begin
-                        state2 <= 0;
-                    end
-                end
-                6:begin
                     TR_OUT <= 1;
                     state2 <= 0;
                 end

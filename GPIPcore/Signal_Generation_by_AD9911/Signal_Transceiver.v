@@ -2,10 +2,10 @@ module Signal_Transceiver(
     input    wire            CLOCK_10M,
     input    wire            RESET_N,
 
-    input    wire            START,
+    input    wire            START_PROBE,
 
     input    wire            TR,
-    input    wire   [ 7:0]   ADDR,
+    input    wire   [15:0]   ADDR,
     input    wire   [31:0]   DATA,
 
     output   reg             SIGNAL_TRANSC_BUSY,
@@ -19,7 +19,6 @@ module Signal_Transceiver(
     output   reg    [15:0]   PULSE_LEN,
     output   reg    [ 7:0]   PROBE_MODE,
 
-    output   reg             INITI,
     input    wire            INITIED,
     output   wire   [31:0]   FREQW,
     output   reg             UPDATE,
@@ -59,47 +58,47 @@ module Signal_Transceiver(
         if (!RESET_N) begin
             checked <= 0;
         end else begin
-            if (ADDR == 20) begin
+            if (ADDR == 120) begin
                 probe_mode <= DATA;
                 checked[0] <= 1;
-            end else if (ADDR == 21) begin
+            end else if (ADDR == 121) begin
                 probe_interval <= DATA;
                 checked[1] <= 1;
-            end else if (ADDR == 22) begin
+            end else if (ADDR == 122) begin
                 groups_number <= DATA;
                 checked[2] <= 1;
-            end else if (ADDR == 23) begin
+            end else if (ADDR == 123) begin
                 repetition_number <= DATA;
                 checked[3] <= 1;
-            end else if (ADDR == 24) begin
+            end else if (ADDR == 124) begin
                 frequency_mode <= DATA;
                 checked[4] <= 1;
-            end else if (ADDR == 25) begin
+            end else if (ADDR == 125) begin
                 starting_freqw <= DATA;
                 checked[5] <= 1;
-            end else if (ADDR == 26) begin
+            end else if (ADDR == 126) begin
                 stepping_freqw <= DATA;
                 checked[6] <= 1;
-            end else if (ADDR == 27) begin
+            end else if (ADDR == 127) begin
                 stepping_number <= DATA;
                 checked[7] <= 1;
-            end else if (ADDR == 28) begin
+            end else if (ADDR == 128) begin
                 code_type <= DATA;
                 checked[8] <= 1;
-            end else if (ADDR == 29) begin
+            end else if (ADDR == 129) begin
                 code_number <= DATA;
                 checked[9] <= 1;
-            end else if (ADDR == 30) begin
+            end else if (ADDR == 130) begin
                 code_length <= DATA;
                 checked[10] <= 1;
-            end else if (ADDR == 31) begin
+            end else if (ADDR == 131) begin
                 code_duration <= DATA;
                 checked[11] <= 1;
-            end else if (ADDR == 32) begin
+            end else if (ADDR == 132) begin
                 pulse_lenght <= DATA;
                 checked[12] <= 1;
-            end else if (33 <= ADDR && ADDR <= 64) begin
-                codes[ADDR-33] <= DATA;
+            end else if (133 <= ADDR && ADDR <= 164) begin
+                codes[ADDR-133] <= DATA;
                 checked[13] <= 1;
             end
         end
@@ -110,7 +109,7 @@ module Signal_Transceiver(
         if (!RESET_N) begin
             start <= 0;
         end else begin
-            start <= START;
+            start <= START_PROBE;
         end 
     end
 
@@ -125,20 +124,18 @@ module Signal_Transceiver(
     always @(posedge CLOCK_10M or negedge RESET_N) begin
         if (!RESET_N) begin
             state <= 0;
-            GEN <= 0;
-            INITI <= 0;
+            GEN   <= 0;
             SIGNAL_TRANSC_BUSY <= 0;
         end else begin
             case (state)
                 0:  begin
                         GEN <= 0;
-                        INITI <= 1;
                         SIGNAL_TRANSC_BUSY <= 0;
                         state <= 1;
                     end
                 1:  begin
                         if (start) begin
-                            SIGNAL_TRANSC_BUSY  <= 1;
+                            SIGNAL_TRANSC_BUSY    <= 1;
                             cur_freqw             <= starting_freqw;    
                             //cur_groups_number   <= 0;
                             cur_repetition_number <= 0;
@@ -155,7 +152,6 @@ module Signal_Transceiver(
                     end
                 2:  begin//err
                         if (INITIED) begin
-                            //INITI <= 0;
                             state <= 3;
                         end
                     end
