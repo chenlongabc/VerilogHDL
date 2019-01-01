@@ -2,7 +2,7 @@ module Signal_Transceiver(
     input    wire            CLOCK_10M,
     input    wire            RESET_N,
 
-    input    wire            START_PROBE,
+    input    wire            START,
 
     input    wire            TR,
     input    wire   [15:0]   ADDR,
@@ -109,7 +109,7 @@ module Signal_Transceiver(
         if (!RESET_N) begin
             start <= 0;
         end else begin
-            start <= START_PROBE;
+            start <= START;
         end 
     end
 
@@ -131,7 +131,9 @@ module Signal_Transceiver(
                 0:  begin
                         GEN <= 0;
                         SIGNAL_TRANSC_BUSY <= 0;
-                        state <= 1;
+                        if (!start) begin
+                            state <= 1;
+                        end
                     end
                 1:  begin
                         if (start) begin

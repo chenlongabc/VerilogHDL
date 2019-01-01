@@ -14,12 +14,12 @@ module Launcher(
     input    wire       [ 7:0]    GPS_minutes,
     input    wire       [ 7:0]    GPS_second,
 
-    output   reg                  START_PROBE,
+    output   wire                 START,
     output   reg                  RESET_N_PROBE,
     output   reg                  INIT_DDS
 
     );
-
+    reg             start;
     reg             start_probe;
     reg             reset_n_probe;
     reg             init_dds;
@@ -92,17 +92,18 @@ module Launcher(
 
     always @(posedge GPS_1PPS or negedge RESET_N_PROBE) begin
         if (!RESET_N_PROBE) begin
-            START_PROBE <= 0;
+            start <= 0;
         end else begin
             if (trigger_mode==1 && start_probe) begin
-                START_PROBE <= 1;
+                start <= 1;
             end else if (trigger_mode==2 && GPS_locked && start_probe) begin
                 if (timing) begin
-                    START_PROBE <= 1;
+                    start <= 1;
                 end
             end
         end
     end
 
+    assign START = start && start_probe;
 
 endmodule // Launcher
