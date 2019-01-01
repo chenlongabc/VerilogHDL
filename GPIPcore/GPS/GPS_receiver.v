@@ -12,7 +12,6 @@ module GPS_receiver(
     output   reg      [ 7:0]       GPS_hour,
     output   reg      [ 7:0]       GPS_minutes,
     output   reg      [ 7:0]       GPS_second,
-  //output   reg      [31:0]       GPS_nanosecond,
     output   reg      [31:0]       GPS_latitude,
     output   reg      [31:0]       GPS_longitude,
     output   reg      [31:0]       GPS_height,
@@ -66,7 +65,6 @@ ssrrccooooTTushmvvvvvvC<CR><LF>
                             GPS_hour                 <= rawdata[8];
                             GPS_minutes              <= rawdata[9];
                             GPS_second               <= rawdata[10];
-                            //GPS_nanosecond         <= rawdata[];
                             GPS_latitude             <= {rawdata[15], rawdata[16], rawdata[17], rawdata[18]};
                             GPS_longitude            <= {rawdata[19], rawdata[20], rawdata[21], rawdata[22]};
                             GPS_height               <= {rawdata[23], rawdata[24], rawdata[25], rawdata[26]};
