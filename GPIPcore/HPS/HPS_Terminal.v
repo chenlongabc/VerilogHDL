@@ -13,7 +13,7 @@ module HPS_Terminal(
     input    wire        [31:0]     s_writedata,
     output   reg         [31:0]     s_readdata,
 
-    output   wire                   main_reset_n,
+    output   reg                    main_reset_n,
 
     output   reg                    rd,  
     input    wire                   rd_valid,
@@ -34,15 +34,12 @@ module HPS_Terminal(
     reg          probe_status;
     reg          wr_over;
     reg          sampled;
-
-    assign main_reset_n = REGS_W[0];
-
-
-
+    reg          got;
 
     always @(posedge s_clk or posedge s_reset) begin
         if (s_reset) begin
-            
+            main_reset_n <= 0;
+            got <= 0;
         end else if (s_read) begin
             if (s_address >= 300) begin
                 s_readdata <= REGS_D[s_address];
@@ -56,8 +53,10 @@ module HPS_Terminal(
                 s_readdata <= 0;
             end
         end else if (s_write) begin
-            if (s_address <= 9) begin
-                REGS_W[s_address] <= s_writedata;
+            if (s_address == 0) begin
+                main_reset_n <= s_writedata;
+            end else if (s_address == 1) begin
+                got <= s_writedata;
             end
         end
     end
@@ -74,8 +73,8 @@ module HPS_Terminal(
     assign rd_instruction_data = rd_instruction[63:32];
     assign rd_instruction_addr = rd_instruction[15: 0];
     
-    always @(posedge s_clk or posedge s_reset) begin
-        if (s_reset) begin
+    always @(posedge s_clk or negedge main_reset_n) begin
+        if (!main_reset_n) begin
             state1 <= 0;
             wr_over <= 1;
         end else begin
@@ -106,8 +105,8 @@ module HPS_Terminal(
         end
     end
 
-    always @(posedge s_clk or posedge s_reset) begin
-        if (s_reset) begin
+    always @(posedge s_clk or negedge main_reset_n) begin
+        if (!main_reset_n) begin
             rd <= 0;
             state2 <= 0;
         end else begin
