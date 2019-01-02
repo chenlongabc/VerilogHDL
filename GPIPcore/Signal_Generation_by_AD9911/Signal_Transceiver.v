@@ -10,6 +10,7 @@ module Signal_Transceiver(
 
     output   reg             SIGNAL_TRANSC_BUSY,
     input    wire            SIGNAL_GEN_OVER,
+    input    wire            Reveiver_OVER,
 
     output   reg             RF_OUTPUT_EN,
     output   reg             GEN,
@@ -198,7 +199,7 @@ module Signal_Transceiver(
                         state <= 8; // ^
                     end
                 8:  begin // finish generating signal
-                        if (SIGNAL_GEN_OVER) begin//if (SIGNAL_GEN_OVER && SIGNAL_SAMPL_OVER) begin
+                        if (SIGNAL_GEN_OVER && Reveiver_OVER) begin//if (SIGNAL_GEN_OVER && SIGNAL_SAMPL_OVER) begin
                             GEN <= 0; 
                             cur_code_number <= cur_code_number + 1;
                             state <= 6; // ^^

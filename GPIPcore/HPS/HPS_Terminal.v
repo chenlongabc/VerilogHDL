@@ -21,20 +21,22 @@ module HPS_Terminal(
 
     output   reg                    wr,
     input    wire                   wr_busy,
+    //output   reg                    sampled,
     output   reg         [63:0]     wr_instruction 
 
     );
 
     reg  [31:0]  REGS_D  [1023:0]; // read device / read data
-    reg  [31:0]  REGS_W  [9   :0]; // write
+    //reg  [31:0]  REGS_W  [9   :0]; // write
     reg  [ 7:0]  state1;
     reg  [ 7:0]  state2;
 
-    
     reg          probe_status;
     reg          wr_over;
     reg          sampled;
     reg          got;
+
+
 
     always @(posedge s_clk or posedge s_reset) begin
         if (s_reset) begin
@@ -55,13 +57,24 @@ module HPS_Terminal(
         end else if (s_write) begin
             if (s_address == 0) begin
                 main_reset_n <= s_writedata;
-            end else if (s_address == 1) begin
-                got <= s_writedata;
+            //end else if (s_address == 1) begin
+            //    got <= s_writedata;
             end
         end
     end
 
 
+    always @(posedge s_clk or negedge main_reset_n) begin
+        if (!main_reset_n) begin
+            sampled <= 0;
+        end else begin
+            if ((rd == 1) && (rd_instruction_addr == 499) && (rd_instruction_data == 1)) begin
+                sampled <= 1;
+            end else if (s_write && (s_address == 1) && (s_writedata == 1)) begin
+                sampled <= 0;
+            end
+        end
+    end
     
     wire  [31:0]  wr_instruction_data;
     wire  [15:0]  wr_instruction_addr;
@@ -133,5 +146,6 @@ module HPS_Terminal(
             endcase 
         end
     end
+
 
 endmodule

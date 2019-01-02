@@ -7,13 +7,16 @@ AD
 module Terminal(
     input    wire            CLK,
     input    wire            RESET_N,
+
     input    wire            TR_IN,
     input    wire   [15:0]   ADDR_IN,
     input    wire   [31:0]   DATA_IN,
     output   reg             TR_IN_BUSY,
+
     output   reg             TR_OUT,
     output   reg    [15:0]   ADDR_OUT,
     output   reg    [31:0]   DATA_OUT,
+    
     input    wire            SPI_RD_SS  ,//   : AD <- DE1 
     input    wire            SPI_RD_SCK ,//   : AD <- DE1
     input    wire            SPI_RD_SD  ,//   : AD <- DE1

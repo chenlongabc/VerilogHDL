@@ -3,11 +3,10 @@
     DeviceData_Collector DC(
         .CLK                         (),
         .RESET_N                     (),
-        .Reveiver_priority           (),
         .Reveiver_ADDR               (),
         .Reveiver_DATA               (),
         .Reveiver_TR                 (),
-        .Reveiver_TR_IN_BUSY         (),
+        .Reveiver_FIFO_ACLR          (),
         .GPS_1PPS                    (),
         .GPS_lockded                 (),
         .GPS_year                    (),
@@ -38,14 +37,14 @@ module DeviceData_Collector(
         input    wire                CLK,
         
         input    wire                RESET_N,
-        input    wire                Reveiver_priority,
+
         input    wire     [15:0]     Reveiver_ADDR,
         input    wire     [31:0]     Reveiver_DATA,
         input    wire                Reveiver_TR,
-        output   wire                Reveiver_TR_IN_BUSY,
+        input    wire                Reveiver_FIFO_ACLR,
 
         input    wire                GPS_1PPS,
-        input    wire                GPS_lockded
+        input    wire                GPS_lockded,
         input    wire     [15:0]     GPS_year,
         input    wire     [ 7:0]     GPS_mouth,
         input    wire     [ 7:0]     GPS_day,
@@ -68,11 +67,18 @@ module DeviceData_Collector(
     );
 
 
-    reg     [31:0]     REGS[20:0];// 320 - 300
+    reg     [31:0]     REG[20:0];// 320 - 300
     reg     [ 7:0]     state;
     reg     [ 7:0]     i;
+    reg                sneding;
+    reg                GPS_1PPS_reg;
+   
 
-    always @(posedge GPS_1PPS) begin
+    always @(posedge TR_CLK) begin
+        GPS_1PPS_reg <= GPS_1PPS;
+    end
+
+    always @(posedge GPS_1PPS_reg) begin
         REG[ 0] <= GPS_lockded;
         REG[ 1] <= GPS_year;
         REG[ 2] <= GPS_mouth;
@@ -89,10 +95,12 @@ module DeviceData_Collector(
         REG[20] <= Frequency_Accuracy;
     end
 
-
     always @(posedge TR_CLK or negedge RESET_N) begin
         if (!RESET_N) begin
+            TR_IN <= 0;
+            FIFO_RDREQ <= 0;
             state <= 0;
+            sneding <= 0;
         end else begin
             case (state)
                 0:  begin
@@ -100,16 +108,93 @@ module DeviceData_Collector(
                         state <= 1;
                     end 
                 1:  begin
-                        if (Reveiver_priority) begin
-                            state <= 0;
+                        if (!FIFO_RDEMPTY) begin
+                            FIFO_RDREQ <= 1;
+                            state <= 2;
                         end else begin
-                            state <= 0;
+                            state <= 4;
                         end
                     end 
+                2:  begin
+                        FIFO_RDREQ <= 0;
+                        state <= 3;
+                    end
+                3:  begin
+                        DATA_IN <= FIFO_Q[63:32];
+                        ADDR_IN <= FIFO_Q[15: 0];
+                        state <= 8;
+                    end
+                4:  begin // ------------------------------------------------
+                        if (sneding) begin
+                            state <= 6;
+                        end else begin
+                            state <= 5;
+                        end
+                    end
+                5:  begin 
+                        if (GPS_1PPS_reg) begin
+                            sneding <= 1;
+                            i <= 0;
+                        end
+                        state <= 0;
+                    end
+                6:  begin
+                        if (i<=20) begin
+                            state <= 7;
+                        end else begin
+                            if (!GPS_1PPS_reg) begin
+                                sneding <= 0;
+                            end
+                            state <= 0;
+                        end
+                    end
+                7:  begin
+                        ADDR_IN <= REG[i];
+                        DATA_IN <= i+300;
+                        i <= i+1;
+                        state <= 8;
+                    end
+                8:  begin // ------------------------------------------------
+                        if (!TR_IN_BUSY) begin
+                            TR_IN <= 1;
+                            state <= 9;
+                        end
+                    end
+                9:  begin
+                        state <= 0;
+                    end
                 default: state <= 0;
             endcase
         end
     end
 
+
+    wire           FIFO_ACLR;
+    wire  [63:0]   FIFO_DATA;
+    wire           FIFO_RDCLK;
+    reg            FIFO_RDREQ;
+    wire           FIFO_WRCLK;
+    wire           FIFO_WRREQ;
+    wire  [63:0]   FIFO_Q;
+    wire           FIFO_RDEMPTY;
+    wire           FIFO_WRFULL;
+
+    assign FIFO_RDCLK = TR_CLK;
+    assign FIFO_WRCLK = CLK;
+    assign FIFO_ACLR  = Reveiver_FIFO_ACLR;
+    assign FIFO_DATA  = {Reveiver_DATA, 16'd0, Reveiver_ADDR};
+    assign FIFO_WRREQ = Reveiver_TR;
+
+    FIFO  BUFFER(
+        .aclr    ( FIFO_ACLR    ),    // input	        aclr;
+        .data    ( FIFO_DATA    ),    // input	[63:0]  data;
+        .rdclk   ( FIFO_RDCLK   ),    // input	        rdclk;
+        .rdreq   ( FIFO_RDREQ   ),    // input	        rdreq;
+        .wrclk   ( FIFO_WRCLK   ),    // input	        wrclk;
+        .wrreq   ( FIFO_WRREQ   ),    // input	        wrreq;
+        .q       ( FIFO_Q       ),    // output	[63:0]  q;
+        .rdempty ( FIFO_RDEMPTY ),    // output	        rdempty;
+        .wrfull  ( FIFO_WRFULL  )     // output	        wrfull;
+    );
 
 endmodule // DeviceData_Collector
