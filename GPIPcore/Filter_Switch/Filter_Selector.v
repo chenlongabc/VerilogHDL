@@ -1,15 +1,4 @@
-/*
-*    ID     fliters
-*  -------------------
-*    0    ~ 2.45MHz
-*    1    ~ 3.55MHz
-*    2    ~ 5.15MHz
-*    3    ~ 7.55MHz
-*    4    ~ 11.15MHz
-*    5    ~ 16.55MHz
-*    6    ~ 24.65MHz
-*    7    ~ 30.00MHz
-*/
+
 module Filter_Selector(    
     input   wire     [31:0]    FREQW,
     output  wire     [ 2:0]    FILTER_SELECT
@@ -17,13 +6,13 @@ module Filter_Selector(
     reg [2:0] FILTER_ID = 0;
     assign FILTER_SELECT = 7-FILTER_ID;
 	
-    localparam   RFfre0 = 32'd26843545;
-    localparam   RFfre1 = 32'd41160103;
-    localparam   RFfre2 = 32'd64424509;
-    localparam   RFfre3 = 32'd102005473;
-    localparam   RFfre4 = 32'd171798691;
-    localparam   RFfre5 = 32'd289910292;
-    localparam   RFfre6 = 32'd519869999;
+    localparam   RFfre0 = 32'd26396153;
+    localparam   RFfre1 = 32'd40712710;
+    localparam   RFfre2 = 32'd63977116;
+    localparam   RFfre3 = 32'd101558080;
+    localparam   RFfre4 = 32'd171351299;
+    localparam   RFfre5 = 32'd289462899;
+    localparam   RFfre6 = 32'd523449139;
 
 
     always @(*) begin // 1MHZ : 8947848.53(FREQW)
