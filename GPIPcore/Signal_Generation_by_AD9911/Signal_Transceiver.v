@@ -43,7 +43,7 @@ module Signal_Transceiver(
     reg   [31:0]    codes[31:0];   // OUT
     reg   [31:0]    checked = 0;
 
-    reg   [15:0]    beforeMA = 256;
+    reg   [15:0]    pre_delay_GEN = 5*256;
 
 
     reg   [31:0]    cur_freqw;     // OUT
@@ -62,7 +62,7 @@ module Signal_Transceiver(
 
     always @(posedge TR or negedge RESET_N) begin
         if (!RESET_N) begin
-            beforeMA <= 256;
+            pre_delay_GEN <= 6*256;
         end else begin
             if (ADDR == 120) begin
                 probe_mode <= DATA;
@@ -93,7 +93,7 @@ module Signal_Transceiver(
             end else if (133 <= ADDR && ADDR <= 164) begin
                 codes[ADDR-133] <= DATA;
             end else if (ADDR == 170) begin
-                beforeMA <= DATA;
+                pre_delay_GEN <= DATA;
             end
         end
     end
@@ -194,7 +194,7 @@ module Signal_Transceiver(
                 7:  begin
                         PRE_GEN <= 1; 
                         delay <= delay+1;
-                        if (delay > beforeMA) begin
+                        if (delay > pre_delay_GEN) begin
                             state <= 8;
                         end
                     end
