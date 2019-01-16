@@ -56,7 +56,7 @@ module Switch_Group(
     wire  LO_MA_EN;
 
     // (1)send/recv (2)send (3)near-recv (4)far-recv (5)close test
-    assign LO_MA_EN      = (PROBE_MODE != 2) ? 1 : 0;
+    assign LO_MA_EN      = (PROBE_MODE == 2) ? 0 : 1;
     assign RECEIVE_SW_EN = LO_MA_EN;
 
     // when close test, open SW ans LO_MA all the time ( set LO_MA 1,  set RECEIVE_SW 0 )
